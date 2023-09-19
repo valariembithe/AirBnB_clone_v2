@@ -30,7 +30,7 @@ class FileStorage:
             for key, value in self.__objects.items():
                 if type(value) is cls:
                     dict[key] = value
-                return dict
+            return dict
 
     def delete(self, obj=None):
         """  delete obj from __objects if it’s inside """
@@ -47,10 +47,9 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
-        with open(FileStorage.__file_path, 'w') as f:
+        with open(self.__file_path, 'w') as f:
             temp = {}
-            temp.update(self.__objects)
-            for key, val in temp.items():
+            for key, val in self.__objects.items():
                 temp[key] = val.to_dict()
             json.dump(temp, f)
 
