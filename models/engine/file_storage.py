@@ -36,7 +36,7 @@ class FileStorage:
         """  delete obj from __objects if it’s inside """
         if obj is not None:
             obj_key = obj.to_dict()['__class__'] + '.' + obj.id
-            if obj_key in self.__objects.keys():
+            if obj_key in self.__objects:
                 del self.__objects[obj_key]
 
     def new(self, obj):
@@ -47,19 +47,19 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
-        with open(self.__file_path, 'w') as f:
+        with open(FileStorage.__file_path, 'w') as file:
             temp = {}
             for key, val in self.__objects.items():
                 temp[key] = val.to_dict()
-            json.dump(temp, f)
+            json.dump(temp, file)
 
     def reload(self):
         """Loads storage dictionary from file"""
         classes = self.model_classes
         if os.path.isfile(self.__file_path):
             temp = {}
-            with open(self.__file_path, 'r') as f:
-                temp = json.load(f)
+            with open(self.__file_path, 'r') as file:
+                temp = json.load(file)
                 for key, val in temp.items():
                         self.all()[key] = classes[val['__class__']](**val)
 
