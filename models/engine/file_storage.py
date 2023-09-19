@@ -1,8 +1,14 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-from importlib import import_module
 import os
+from models.base_model import BaseModel
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
@@ -11,15 +17,15 @@ class FileStorage:
 
     def __init__(self):
         """ Initializes a file storage instances """
-        self.model_classes = {
-                    'BaseModel': import_module('models.base_model').BaseModel, 
-                    'User': import_module('models.user').User, 
-                    'Place': import_module('models.place').Place,
-                    'State': import_module('models.state').State, 
-                    'City': import_module('models.city').City, 
-                    'Amenity': import_module('models.amenity').Amenity,
-                    'Review': import_module('models.review').Review
-                  }
+        classes = {
+            'BaseModel':BaseModel, 
+            'User': User, 
+            'Place': Place,
+            'State': State, 
+            'City': City, 
+            'Amenity': Amenity,
+            'Review': Review
+            }
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
@@ -41,14 +47,13 @@ class FileStorage:
         """Saves storage dictionary to file"""
         with open(FileStorage.__file_path, 'w') as f:
             temp = {}
-            temp.update(FileStorage.__objects)
+            temp.update(self.__objects)
             for key, val in temp.items():
                 temp[key] = val.to_dict()
             json.dump(temp, f)
 
     def reload(self):
         """Loads storage dictionary from file"""
-        classes = self.model_classes
         try:
             temp = {}
             with open(self.__file_path, 'r') as f:
