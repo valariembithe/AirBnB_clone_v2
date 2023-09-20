@@ -24,20 +24,20 @@ class FileStorage:
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
         if cls is None:
-            return FileStorage.__objects
+            return self.__objects
         else:
             filtered_objects = {}
-            for key, value in FileStorage.__objects.items():
-                if isinstance(value, cls):
+            for key, value in self.__objects.items():
+                if type(value) is cls:
                     filtered_objects[key] = value
             return filtered_objects
 
     def delete(self, obj=None):
         """  delete obj from __objects if it’s inside """
         if obj is not None:
-            obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-            if obj_key in FileStorage.__objects:
-                del FileStorage.__objects[obj_key]
+            obj_key = obj.to_dict()['__class__'] + '.' + obj.id
+            if obj_key in self.__objects.keys():
+                del self.__objects[obj_key]
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -47,7 +47,7 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
-        with open(FileStorage.__file_path, 'w') as file:
+        with open(self.__file_path, 'w') as file:
             temp = {}
             for key, val in self.__objects.items():
                 temp[key] = val.to_dict()
@@ -61,7 +61,7 @@ class FileStorage:
             with open(self.__file_path, 'r') as file:
                 temp = json.load(file)
                 for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                    self.all()[key] = classes[val['__class__']](**val)
 
     def close(self):
         """Closes the storage engine."""
