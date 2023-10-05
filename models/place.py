@@ -27,10 +27,6 @@ place_amenity = Table(
     )
 )
 
-"""Represents the many to many relationship table
-between Place and Amenity records.
-"""
-
 class Place(BaseModel, Base):
     """ A place to stay """
     __tablename__ = 'places'
@@ -65,42 +61,47 @@ class Place(BaseModel, Base):
         Float, nullable=True
     ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else 0.0
     amenity_ids = []
-    reviews = relationship(
-        'Review',
-        cascade="all, delete, delete-orphan",
-        backref='place'
-    ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else None
 
     if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+        reviews = relationship(
+            'Review',
+            cascade="all, delete, delete-orphan",
+            backref='place'
+        )
+
         amenities = relationship(
-                'Amenity',
-                secondary=place_amenity,
-                viewonly=False,
-                backref='place_amenities'
+            'Amenity',
+            secondary=place_amenity,
+            viewonly=False,
+            backref='place_amenities'
         )
     else:
         @property
         def amenities(self):
-            """ Adds aamenity to place """
-            from models import Storage
+            """ Returns amenities associated with this place """
+            from models import storage
             amenities_of_place = []
-            for value in storage.all(Amenity).values():
-                if value.id in self.amenity_ids:
-                    amenities_of_place.append(value)
+            for amenity_id in self.amenity_ids:
+                key = f'Amenity.{amenity_id}'
+                if key in storage.all(Amenity):
+                    amenities_of_place.append(storage.all(Amenity)[key])
             return amenities_of_place
 
         @amenities.setter
         def amenities(self, value):
-            """ Adds amenity to this place """
+            """ Adds or removes amenities from this place """
             if type(value) is Amenity:
                 if value.id not in self.amenity_ids:
                     self.amenity_ids.append(value.id)
+            elif type(value) is str and value in self.amenity_ids:
+                self.amenity_ids.remove(value)
+
         @property
         def reviews(self):
-            """Returns reviews of place"""
-            from models import Storage
+            """ Returns reviews associated with this place """
+            from models import storage
             reviews_of_place = []
-            for value in storage.all(Review).values():
-                if value.place_id == self.id:
-                    reviews_of_place.append(value)
+            for review in storage.all(Review).values():
+                if review.place_id == self.id:
+                    reviews_of_place.append(review)
             return reviews_of_place
