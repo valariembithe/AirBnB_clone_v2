@@ -29,7 +29,7 @@ def python_is_cool(text="is_cool"):
 @app.route('/number/<int:n>')
 def number(n):
     """ number route """
-    return "{} is a number".format(n)
+    return "{:d} is a number".format(n)
 
 if __name__ == '__main__':
     app.run(debug=True)
