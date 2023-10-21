@@ -26,10 +26,10 @@ def python_is_cool(text="is_cool"):
     """ display text """
     return "Python {}".format(text.replace('_', ' '))
 
-@app.route('/number/<n>')
+@app.route('/number/<int:n>')
 def number(n):
-    if n is type(int):
-        return "{} is a number".format(n)
+    """ number route """
+    return "{} is a number".format(n)
 
 if __name__ == '__main__':
     app.run(debug=True)
