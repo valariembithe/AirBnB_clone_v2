@@ -14,7 +14,7 @@ def close_db(exc):
 @app.route('/cities_by_states')
 def states_list():
     """ a states list """
-    states = Storage.all(State).values()
+    states = storage.all(State).values()
     return render_template('8-cities_by_states.html', states=states)
 
 if __name__ == "__main__":
